@@ -1,0 +1,524 @@
+import React, { useState } from 'react';
+import { BookOpen, MessageCircle, BookType, HelpCircle, ChevronRight, ChevronLeft, RotateCcw, CheckCircle, XCircle, Award, Volume2 } from 'lucide-react';
+
+// --- HELPER FUNCTION: TEXT TO SPEECH ---
+const playAudio = (text) => {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel(); // 停止当前正在播放的语音
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'zh-CN';
+    utterance.rate = 0.85; // 稍微放慢语速，适合学习者
+    window.speechSynthesis.speak(utterance);
+  }
+};
+
+// --- DATA ---
+const vocabulary = [
+  { id: 1, ch: "教室", py: "jiàoshì", uz: "sinfxona" },
+  { id: 2, ch: "机场", py: "jīchǎng", uz: "aeroport" },
+  { id: 3, ch: "路", py: "lù", uz: "yo'l" },
+  { id: 4, ch: "离", py: "lí", uz: "-dan (masofa)" },
+  { id: 5, ch: "公司", py: "gōngsī", uz: "ishxona, ofis" },
+  { id: 6, ch: "远", py: "yuǎn", uz: "uzoq" },
+  { id: 7, ch: "公共汽车", py: "gōnggòng qìchē", uz: "jamoat transporti, avtobus" },
+  { id: 8, ch: "小时", py: "xiǎoshí", uz: "soat" },
+  { id: 9, ch: "慢", py: "màn", uz: "sekin" },
+  { id: 10, ch: "快", py: "kuài", uz: "tez" },
+  { id: 11, ch: "过", py: "guò", uz: "nishonlamoq, o'tkazmoq" },
+  { id: 12, ch: "走", py: "zǒu", uz: "piyoda yurib borish" },
+  { id: 13, ch: "到", py: "dào", uz: "yetib olmoq" },
+  { id: 14, ch: "考试", py: "kǎoshì", uz: "imtihon" },
+  { id: 15, ch: "商店", py: "shāngdiàn", uz: "do'kon" },
+  { id: 16, ch: "时间", py: "shíjiān", uz: "vaqt" },
+];
+
+const dialogues = [
+  {
+    title: "1. 在家里 / Uyda",
+    lines: [
+      { speaker: "A", ch: "大卫回来了吗？", py: "Dàwèi huílai le ma?", uz: "Dovud qaytdimi?", ru: "Дэвид вернулся?", en: "Has David come back?" },
+      { speaker: "B", ch: "没有，他还在教室学习呢。", py: "Méiyǒu, tā hái zài jiàoshì xuéxí ne.", uz: "Yo'q, u hali ham sinfda dars qilyapti.", ru: "Нет, он все еще занимается в классе.", en: "No, he is still studying in the classroom." },
+      { speaker: "A", ch: "已经9点多了，他怎么还在学习？", py: "Yǐjīng jiǔ diǎn duō le, tā zěnme hái zài xuéxí?", uz: "Soat allaqachon 9 dan oshdi. Nega u hali ham dars qilyapti?", ru: "Уже больше 9 часов, почему он все еще учится?", en: "It's already past 9 o'clock, why is he still studying?" },
+      { speaker: "B", ch: "明天有考试，他说今天要好好准备。", py: "Míngtiān yǒu kǎoshì, tā shuō jīntiān yào hǎohǎo zhǔnbèi.", uz: "Ertaga imtihoni bor ekan, bugun yaxshilab tayyorlanishi kerakligini aytdi.", ru: "Завтра экзамен, он сказал, что сегодня нужно хорошо подготовиться.", en: "There is an exam tomorrow, he said he needs to prepare well today." }
+    ]
+  },
+  {
+    title: "2. 在去机场的路上 / Aeroport yo'lida",
+    lines: [
+      { speaker: "A", ch: "你现在在哪儿呢？", py: "Nǐ xiànzài zài nǎr ne?", uz: "Hozir qayerdasan?", ru: "Где ты сейчас?", en: "Where are you right now?" },
+      { speaker: "B", ch: "在去机场的路上。你已经到了吗？", py: "Zài qù jīchǎng de lùshang. Nǐ yǐjīng dào le ma?", uz: "Aeroport yo'lidaman. Sen allaqachon yetib keldingmi?", ru: "По дороге в аэропорт. Ты уже приехал?", en: "On the way to the airport. Have you arrived already?" },
+      { speaker: "A", ch: "我下飞机了。你还有多长时间能到这儿？", py: "Wǒ xià fēijī le. Nǐ hái yǒu duō cháng shíjiān néng dào zhèr?", uz: "Men samolyotdan tushdim. Bu yerga qancha vaqtda yetib kelasan?", ru: "Я вышел из самолета. Через сколько времени ты будешь здесь?", en: "I've gotten off the plane. How much longer until you get here?" },
+      { speaker: "B", ch: "二十分钟就到。", py: "Èrshí fēnzhōng jiù dào.", uz: "Yigirma daqiqada yetib boraman.", ru: "Буду через двадцать минут.", en: "I'll be there in twenty minutes." }
+    ]
+  },
+  {
+    title: "3. 在健身房 / Sport zalida",
+    lines: [
+      { speaker: "A", ch: "你家离公司远吗？", py: "Nǐ jiā lí gōngsī yuǎn ma?", uz: "Sen ishxonangdan uzoqda turasanmi?", ru: "Твой дом далеко от компании?", en: "Is your house far from the company?" },
+      { speaker: "B", ch: "很远，坐公共汽车要一个多小时呢！", py: "Hěn yuǎn, zuò gōnggòng qìchē yào yí ge duō xiǎoshí ne!", uz: "Juda uzoq, avtobusda bir soatdan ortiq yuraman.", ru: "Очень далеко, на автобусе ехать больше часа!", en: "Very far, taking the bus takes more than an hour!" },
+      { speaker: "A", ch: "坐公共汽车太慢了，你怎么不开车？", py: "Zuò gōnggòng qìchē tài màn le, nǐ zěnme bù kāi chē?", uz: "Avtobus juda sekin yuradi-ku, nega mashina haydamaysan?", ru: "На автобусе слишком медленно, почему ты не водишь машину?", en: "Taking the bus is too slow, why don't you drive?" },
+      { speaker: "B", ch: "开车也不快，路上车太多了！", py: "Kāi chē yě bú kuài, lùshang chē tài duō le!", uz: "Mashinada ham tez yurolmaysan, yo'llarda mashina juda ko'p!", ru: "На машине тоже не быстро, на дорогах слишком много машин!", en: "Driving isn't fast either, there are too many cars on the road!" }
+    ]
+  },
+  {
+    title: "4. 在路上 / Yo'lda",
+    lines: [
+      { speaker: "A", ch: "今天晚上我们一起吃饭吧，给你过生日。", py: "Jīntiān wǎnshang wǒmen yìqǐ chī fàn ba, gěi nǐ guò shēngrì.", uz: "Bugun kechqurun birgalikda ovqatlanib, sening tug'ilgan kuningni nishonlaylik.", ru: "Давай поужинаем вместе сегодня вечером, отпразднуем твой день рождения.", en: "Let's eat together tonight and celebrate your birthday." },
+      { speaker: "B", ch: "今天？离我的生日还有一个多星期呢！", py: "Jīntiān? Lí wǒ de shēngrì hái yǒu yí ge duō xīngqī ne!", uz: "Bugun? Mening tug'ilgan kunimga hali yana bir haftadan oshiq vaqt bor!", ru: "Сегодня? До моего дня рождения еще больше недели!", en: "Today? My birthday is still more than a week away!" },
+      { speaker: "A", ch: "下个星期我要去北京，今天过吧。", py: "Xià ge xīngqī wǒ yào qù Běijīng, jīntiān guò ba.", uz: "Keyingi hafta Pekinga ketishim kerak, bugun nishonlay qolaylik.", ru: "На следующей неделе я еду в Пекин, давай отпразднуем сегодня.", en: "Next week I'm going to Beijing, let's celebrate it today." },
+      { speaker: "B", ch: "好吧，离这儿不远有一个中国饭馆，走几分钟就到了。", py: "Hǎo ba, lí zhèr bù yuǎn yǒu yí ge Zhōngguó fànguǎn, zǒu jǐ fēnzhōng jiù dào le.", uz: "Mayli, bu yerdan uzoq bo'lmagan joyda xitoy restorani bor, bir necha daqiqadayoq yetib olamiz.", ru: "Хорошо, недалеко отсюда есть китайский ресторан, идти всего несколько минут.", en: "Alright, there is a Chinese restaurant not far from here, it's just a few minutes' walk." }
+    ]
+  }
+];
+
+const grammar = [
+  {
+    title: "1. 语气副词“还” (2) / '还' ohang ravishi (2)",
+    explanations: {
+      uz: "Ish-harakat yoki holat davom etayotganligini bildiradi (Haraktning tugallanmaganligini ifodalaydi), inkor shakli “还没”.",
+      ru: "Указывает на продолжение действия или состояния. Отрицательная форма - “还没”.",
+      en: "Indicates the continuation of an action or state. The negative form is “还没”."
+    },
+    examples: [
+      { ch: "八点了，他还在睡觉。", uz: "Soat 8 bo'ldi, u hali ham uxlayapti.", ru: "8 часов, а он все еще спит.", en: "It's 8 o'clock, and he is still sleeping." },
+      { ch: "你怎么还没吃饭？", uz: "Nega hali ham ovqatlanmading?", ru: "Почему ты еще не поел?", en: "Why haven't you eaten yet?" },
+      { ch: "他还在教室学习呢。", uz: "U hali ham sinfxonada dars qilyapti.", ru: "Он все еще занимается в классе.", en: "He is still studying in the classroom." }
+    ]
+  },
+  {
+    title: "2. 时间副词“就” / '就' payt ravishi",
+    explanations: {
+      uz: "“就” (bilanoq) ravishi ish-harakatning qisqa vaqtda, tez va muvaffaqiyatli amalga oshganiga urg'u berganda qo'llaniladi.",
+      ru: "Наречие “就” используется, чтобы подчеркнуть, что действие происходит быстро, рано или успешно.",
+      en: "The adverb “就” is used to emphasize that an action happens quickly, early, or smoothly."
+    },
+    examples: [
+      { ch: "同学们七点半就来教室了。", uz: "O'quvchilar soat yetti yarimdayoq sinfga kelishdi.", ru: "Одноклассники пришли в класс уже в 7:30.", en: "The classmates came to the classroom as early as 7:30." },
+      { ch: "我坐飞机一个半小时就到北京了。", uz: "Men samolyotda bir yarim soatdayoq Pekinga yetib bordim.", ru: "Я прилетел в Пекин всего за полтора часа.", en: "I arrived in Beijing in just an hour and a half by plane." },
+      { ch: "我二十分钟就到。", uz: "Men yigirma daqiqadayoq yetib boraman.", ru: "Я буду там всего через 20 минут.", en: "I will be there in just 20 minutes." }
+    ]
+  },
+  {
+    title: "3. 动词“离” / '离' fe'li",
+    explanations: {
+      uz: "O'rin-joy, vaqt va maqsadlar orasidagi masofani ifodalaydi. (O'zbek tilidagi chiqish kelishigini '-dan' bildiradi.)",
+      ru: "Указывает на расстояние в пространстве, времени или цели (подобно 'от/до' в русском).",
+      en: "Indicates distance in space, time, or purpose (similar to 'from' in English)."
+    },
+    examples: [
+      { ch: "我家离学校很远。", uz: "Mening uyim maktabdan juda uzoq.", ru: "Мой дом находится очень далеко от школы.", en: "My house is very far from the school." },
+      { ch: "学校离机场有20多公里。", uz: "Maktab aeroportdan 20 km dan ko'proq uzoqlikda.", ru: "Школа находится более чем в 20 километрах от аэропорта.", en: "The school is more than 20 kilometers away from the airport." },
+      { ch: "离我的生日还有一个多星期呢！", uz: "Mening tug'ilgan kunimga hali yana bir haftadan ko'proq vaqt bor!", ru: "До моего дня рождения еще больше недели!", en: "There is still more than a week until my birthday!" }
+    ]
+  },
+  {
+    title: "4. 语气助词“呢” / '呢' ko'makchisi",
+    explanations: {
+      uz: "Darak gaplarning oxirida tasdiqni bildiradi. Gap ohangi maqtov va e'tirofga ega bo'ladi (Biroz bo'rttirish ma'nosini ham beradi).",
+      ru: "Используется в конце повествовательного предложения для подтверждения факта и убеждения слушателя.",
+      en: "Used at the end of a declarative sentence to confirm a fact and convince the listener, often with an exaggerating tone."
+    },
+    examples: [
+      { ch: "八点上课，时间还早呢。", uz: "Dars soat 8 da boshlanadi, vaqt hali erta-ku.", ru: "Урок начинается в 8, еще рано.", en: "Class starts at 8, it's still early." },
+      { ch: "医院离我们这儿还远呢。", uz: "Kasalxona bu yerdan ancha uzoq.", ru: "Больница еще довольно далеко отсюда.", en: "The hospital is still quite far from here." },
+      { ch: "坐公共汽车要一个多小时呢！", uz: "Avtobusda bir soatdan ko'proq vaqt ketadi!", ru: "Поездка на автобусе занимает больше часа!", en: "Taking the bus takes more than an hour!" }
+    ]
+  }
+];
+
+// 测试题目已全部汉化
+const quizQuestions = [
+  { q: "1. 词汇题：“aeroport (机场)” 用汉语怎么说？", options: ["教室", "机场", "公司", "商店"], answer: 1 },
+  { q: "2. 翻译题：请选出“U hali ham sinfxonada dars qilyapti”的正确汉语翻译：", options: ["U aeroportda o'qiyapti.", "Ertaga imtihoni bor.", "他还在教室学习呢。", "U sinfxonada emas."], answer: 2 },
+  { q: "3. 拼音题：“时间 (vaqt)” 的正确拼音是什么？", options: ["shíjiān", "màn", "kuài", "xiǎoshí"], answer: 0 },
+  { q: "4. 语法题：哪个句子是正确的？", options: ["我家离学校很远。", "我家远学校离。", "学校离我家很不远。", "离我家学校很远。"], answer: 0 },
+  { q: "5. 填空题：“二十分钟___到。” (Yigirma daqiqada yetib boraman)", options: ["还", "离", "就", "呢"], answer: 2 },
+  { q: "6. 词汇题：表示“度过（时间/节日）”的动词是哪个？", options: ["走 (zǒu)", "到 (dào)", "过 (guò)", "去 (qù)"], answer: 2 },
+  { q: "7. 阅读理解（对话1）：大卫为什么还在学习？", options: ["他不想睡觉", "明天有考试", "他喜欢看书", "他要去机场"], answer: 1 },
+  { q: "8. 词汇题：“公共汽车 (avtobus)” 是什么意思？", options: ["飞机 (Airplane)", "自行车 (Bicycle)", "公共汽车 (Bus)", "出租车 (Taxi)"], answer: 2 },
+  { q: "9. 阅读理解（对话3）：他为什么不开车？", options: ["他没有车", "路上车太多了", "他不会开车", "公共汽车更快"], answer: 1 },
+  { q: "10. 填空题：“坐公共汽车要一个多小时___！”", options: ["吗", "呢", "吧", "离"], answer: 1 },
+  { q: "11. 阅读理解（对话4）：为什么他们今天给他过生日？", options: ["今天是他的生日", "下个星期他要去北京", "他们很饿", "饭馆只有今天开门"], answer: 1 },
+  { q: "12. 拼音题：“走 (piyoda yurib borish)” 的拼音是什么？", options: ["zǒu", "màn", "kuài", "guò"], answer: 0 },
+  { q: "13. 翻译题：“八点了，他还在睡觉。” 这句话的意思是什么？", options: ["他八点睡觉了。", "U hali ham uxlab yotibdi.", "他八点起床。", "他根本没睡觉。"], answer: 1 },
+  { q: "14. 词汇题：“快 (tez)” 的反义词（Antonym/Zid ma'no）是什么？", options: ["慢 (màn)", "远 (yuǎn)", "近 (jìn)", "到 (dào)"], answer: 0 },
+  { q: "15. 语法题：关于“离”的用法，哪个句子是正确的？", options: ["医院离我呢很近。", "我的生日离还有一个星期呢！", "离我家公司很远。", "你家离公司远吗？"], answer: 3 },
+];
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('flashcards');
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col">
+      {/* HEADER */}
+      <header className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white p-6 shadow-md text-center">
+        <h1 className="text-3xl font-bold mb-2">第7课：你家离公司远吗</h1>
+        <p className="text-lg font-medium opacity-90 tracking-wide bg-emerald-800/30 inline-block px-4 py-1 rounded-full">
+          Dilfuza Kāng lǎo shī bilan xitoy tilini o'rganmiz
+        </p>
+      </header>
+
+      {/* NAVIGATION TABS */}
+      <nav className="flex justify-center flex-wrap bg-white shadow-sm sticky top-0 z-10">
+        {[
+          { id: 'flashcards', icon: BookOpen, label: "Lug'at (生词)" },
+          { id: 'dialogues', icon: MessageCircle, label: "Matnlar (对话)" },
+          { id: 'grammar', icon: BookType, label: "Grammatika (语法)" },
+          { id: 'quiz', icon: HelpCircle, label: "Test (测试)" },
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-6 py-4 font-semibold transition-colors duration-200 border-b-4 ${
+              activeTab === tab.id 
+                ? 'border-teal-500 text-teal-700 bg-teal-50/50' 
+                : 'border-transparent text-slate-500 hover:text-teal-600 hover:bg-slate-50'
+            }`}
+          >
+            <tab.icon size={20} />
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        {activeTab === 'flashcards' && <FlashcardsSection />}
+        {activeTab === 'dialogues' && <DialoguesSection />}
+        {activeTab === 'grammar' && <GrammarSection />}
+        {activeTab === 'quiz' && <QuizSection />}
+      </main>
+
+      {/* FOOTER */}
+      <footer className="bg-slate-800 text-slate-300 py-8 text-center mt-auto border-t-4 border-teal-600">
+        <div className="container mx-auto px-4">
+          <p className="font-semibold mb-1">HSK 2 Standard Course - Lesson 7</p>
+          <p className="text-sm">© 2026 Dilfuza Kāng lǎo shī (telegram@diffila)</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+/* =========================================
+   FLASHCARDS COMPONENT
+   ========================================= */
+function FlashcardsSection() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const nextCard = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev + 1) % vocabulary.length);
+    }, 150);
+  };
+
+  const prevCard = () => {
+    setIsFlipped(false);
+    setTimeout(() => {
+      setCurrentIndex((prev) => (prev - 1 + vocabulary.length) % vocabulary.length);
+    }, 150);
+  };
+
+  const currentWord = vocabulary[currentIndex];
+
+  return (
+    <div className="flex flex-col items-center justify-center animate-fadeIn">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-slate-700">Yangi so'zlar (生词)</h2>
+        <p className="text-slate-500">Kartochkani o'girish uchun ustiga bosing (点击卡片翻转)</p>
+      </div>
+
+      <div 
+        className="relative w-full max-w-sm h-80 perspective-1000 cursor-pointer mb-8"
+        onClick={() => setIsFlipped(!isFlipped)}
+      >
+        <div className={`w-full h-full transition-transform duration-500 transform-style-3d ${isFlipped ? 'rotate-y-180' : ''}`}>
+          
+          {/* Front of Card (Chinese) */}
+          <div className="absolute inset-0 backface-hidden bg-white border-2 border-slate-100 rounded-3xl shadow-xl flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-white to-slate-50">
+            {/* Pronunciation Button */}
+            <button 
+              onClick={(e) => { e.stopPropagation(); playAudio(currentWord.ch); }}
+              className="absolute top-4 right-4 p-3 bg-slate-100 text-teal-600 rounded-full hover:bg-teal-200 transition-colors shadow-sm"
+              title="播放发音 (Play audio)"
+            >
+              <Volume2 size={24} />
+            </button>
+
+            <span className="text-8xl font-black text-slate-800 mb-4">{currentWord.ch}</span>
+            <div className="absolute bottom-6 text-slate-400 flex items-center gap-2">
+              <RotateCcw size={16} /> O'girish
+            </div>
+          </div>
+
+          {/* Back of Card (Pinyin + Uzbek) */}
+          <div className="absolute inset-0 backface-hidden rotate-y-180 bg-teal-600 text-white rounded-3xl shadow-xl flex flex-col items-center justify-center p-8 text-center">
+            <span className="text-4xl font-medium mb-4 tracking-wide">{currentWord.py}</span>
+            <span className="text-2xl font-bold">{currentWord.uz}</span>
+            <div className="absolute top-6 right-6 opacity-30">
+              <BookOpen size={48} />
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div className="flex items-center gap-6">
+        <button onClick={prevCard} className="p-4 bg-white rounded-full shadow hover:bg-slate-100 transition-colors text-slate-600">
+          <ChevronLeft size={28} />
+        </button>
+        <span className="font-semibold text-lg text-slate-500">
+          {currentIndex + 1} / {vocabulary.length}
+        </span>
+        <button onClick={nextCard} className="p-4 bg-white rounded-full shadow hover:bg-slate-100 transition-colors text-slate-600">
+          <ChevronRight size={28} />
+        </button>
+      </div>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        .backface-hidden { backface-visibility: hidden; }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}} />
+    </div>
+  );
+}
+
+/* =========================================
+   DIALOGUES COMPONENT
+   ========================================= */
+function DialoguesSection() {
+  return (
+    <div className="space-y-8 animate-fadeIn">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-slate-700">Matnlar (课文)</h2>
+        <p className="text-slate-500">Dialoglarni o'qing va o'rganing (附带发音和多语种翻译)</p>
+      </div>
+
+      {dialogues.map((dialogue, index) => (
+        <div key={index} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="bg-teal-600 text-white px-6 py-3 font-bold text-lg flex items-center gap-3">
+            <MessageCircle size={22} />
+            {dialogue.title}
+          </div>
+          <div className="p-6 space-y-4">
+            {dialogue.lines.map((line, lIndex) => (
+              <div key={lIndex} className={`flex gap-4 p-4 rounded-xl ${line.speaker === 'A' ? 'bg-slate-50' : 'bg-teal-50'}`}>
+                <div className={`font-bold text-xl h-10 w-10 shrink-0 flex items-center justify-center rounded-full ${line.speaker === 'A' ? 'bg-slate-200 text-slate-600' : 'bg-teal-200 text-teal-700'}`}>
+                  {line.speaker}
+                </div>
+                <div className="flex-1">
+                  {/* Chinese Text + Pronunciation Button */}
+                  <div className="flex items-center gap-3 mb-1">
+                    <p className="text-xl font-bold text-slate-800">{line.ch}</p>
+                    <button 
+                      onClick={() => playAudio(line.ch)} 
+                      className="p-1.5 text-teal-600 bg-teal-100/50 rounded-full hover:bg-teal-200 transition-colors"
+                      title="播放发音"
+                    >
+                      <Volume2 size={18} />
+                    </button>
+                  </div>
+                  <p className="text-md text-slate-500 mb-3 font-medium">{line.py}</p>
+                  
+                  {/* Multi-language Translations */}
+                  <div className="space-y-1 border-l-2 border-teal-200 pl-3">
+                    <p className="text-sm text-slate-600 flex items-start gap-2">
+                      <span className="font-bold text-teal-700/60 w-6">UZ</span> <span className="text-teal-900">{line.uz}</span>
+                    </p>
+                    <p className="text-sm text-slate-600 flex items-start gap-2">
+                      <span className="font-bold text-sky-700/60 w-6">RU</span> <span className="text-sky-900">{line.ru}</span>
+                    </p>
+                    <p className="text-sm text-slate-600 flex items-start gap-2">
+                      <span className="font-bold text-rose-700/60 w-6">EN</span> <span className="text-rose-900">{line.en}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* =========================================
+   GRAMMAR COMPONENT
+   ========================================= */
+function GrammarSection() {
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-slate-700">Grammatika (语法)</h2>
+        <p className="text-slate-500">Qoidalarni o'rganing va misollarni ko'rib chiqing (多语种语法解析)</p>
+      </div>
+
+      {grammar.map((item, index) => (
+        <div key={index} className="bg-white rounded-2xl shadow-sm border-l-8 border-teal-500 p-6 hover:shadow-md transition-shadow">
+          <h3 className="text-xl font-bold text-slate-800 mb-4">{item.title}</h3>
+          
+          {/* Multi-language Explanation */}
+          <div className="bg-slate-50 p-4 rounded-xl space-y-2 mb-5">
+            <p className="text-sm text-teal-900 flex gap-2 leading-relaxed"><span className="font-bold text-teal-600/70 w-6 shrink-0">UZ</span> {item.explanations.uz}</p>
+            <p className="text-sm text-sky-900 flex gap-2 leading-relaxed"><span className="font-bold text-sky-600/70 w-6 shrink-0">RU</span> {item.explanations.ru}</p>
+            <p className="text-sm text-rose-900 flex gap-2 leading-relaxed"><span className="font-bold text-rose-600/70 w-6 shrink-0">EN</span> {item.explanations.en}</p>
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="font-semibold text-teal-700 mb-3 flex items-center gap-2">
+              Misollar (例如):
+            </h4>
+            <div className="space-y-4">
+              {item.examples.map((ex, eIndex) => (
+                <div key={eIndex} className="pl-4 border-l-2 border-slate-200 space-y-1">
+                  <p className="text-slate-800 font-bold flex items-center gap-2">
+                    {ex.ch}
+                    <button onClick={() => playAudio(ex.ch)} className="text-slate-400 hover:text-teal-500 transition-colors">
+                      <Volume2 size={16} />
+                    </button>
+                  </p>
+                  <p className="text-sm text-slate-500 flex gap-2"><span className="font-semibold text-slate-300 w-6">UZ</span> {ex.uz}</p>
+                  <p className="text-sm text-slate-500 flex gap-2"><span className="font-semibold text-slate-300 w-6">RU</span> {ex.ru}</p>
+                  <p className="text-sm text-slate-500 flex gap-2"><span className="font-semibold text-slate-300 w-6">EN</span> {ex.en}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* =========================================
+   QUIZ COMPONENT
+   ========================================= */
+function QuizSection() {
+  const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showResults, setShowResults] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+
+  const handleAnswerClick = (optionIndex) => {
+    if (selectedAnswer !== null) return; 
+
+    setSelectedAnswer(optionIndex);
+
+    const isCorrect = optionIndex === quizQuestions[currentQIndex].answer;
+    if (isCorrect) {
+      setScore(score + 1);
+    }
+
+    setTimeout(() => {
+      if (currentQIndex + 1 < quizQuestions.length) {
+        setCurrentQIndex(currentQIndex + 1);
+        setSelectedAnswer(null);
+      } else {
+        setShowResults(true);
+      }
+    }, 1200); 
+  };
+
+  const restartQuiz = () => {
+    setCurrentQIndex(0);
+    setScore(0);
+    setShowResults(false);
+    setSelectedAnswer(null);
+  };
+
+  if (showResults) {
+    const percentage = Math.round((score / quizQuestions.length) * 100);
+    let feedbackUz = "";
+    let feedbackZh = "";
+    
+    if (percentage === 100) {
+      feedbackUz = "Ajoyib! Siz hamma narsani mukammal bilasiz! 🏆";
+      feedbackZh = "太棒了！你的汉语非常完美！";
+    } else if (percentage >= 80) {
+      feedbackUz = "Juda yaxshi! Kichik xatolar bor, lekin natija zo'r. 👏";
+      feedbackZh = "非常好！有几个小错误，但是成绩很棒！";
+    } else if (percentage >= 50) {
+      feedbackUz = "Yomon emas, lekin darslikni yana bir bor takrorlashingiz kerak. 📚";
+      feedbackZh = "还不错，但是你需要再复习一下课本。";
+    } else {
+      feedbackUz = "Ko'proq amaliyot kerak. Lug'at va grammatikani qaytadan o'qing! 💪";
+      feedbackZh = "需要更多练习，请重新复习生词和语法！";
+    }
+
+    return (
+      <div className="bg-white rounded-3xl shadow-lg p-10 text-center max-w-lg mx-auto animate-fadeIn border border-slate-100">
+        <Award className="mx-auto text-teal-500 mb-6" size={80} />
+        <h2 className="text-3xl font-bold text-slate-800 mb-2">Test Yakunlandi!</h2>
+        <h3 className="text-xl font-medium text-slate-500 mb-6">测试完成！</h3>
+        <p className="text-6xl font-black text-teal-600 mb-6">{score} <span className="text-3xl text-slate-400">/ {quizQuestions.length}</span></p>
+        <div className="mb-8">
+          <p className="text-lg text-slate-700 font-bold mb-1">{feedbackUz}</p>
+          <p className="text-md text-slate-500">{feedbackZh}</p>
+        </div>
+        <button 
+          onClick={restartQuiz}
+          className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-colors flex items-center gap-2 mx-auto"
+        >
+          <RotateCcw size={20} /> Qaytadan boshlash (重新开始)
+        </button>
+      </div>
+    );
+  }
+
+  const currentQ = quizQuestions[currentQIndex];
+
+  return (
+    <div className="max-w-2xl mx-auto animate-fadeIn">
+      <div className="flex justify-between items-center mb-6 text-slate-500 font-semibold">
+        <span>Savol (问题) {currentQIndex + 1} / {quizQuestions.length}</span>
+        <span>Natija (得分): {score}</span>
+      </div>
+
+      <div className="w-full bg-slate-200 rounded-full h-2 mb-8">
+        <div 
+          className="bg-teal-500 h-2 rounded-full transition-all duration-300" 
+          style={{ width: `${((currentQIndex) / quizQuestions.length) * 100}%` }}
+        ></div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-6">
+        <h3 className="text-2xl font-bold text-slate-800 mb-6 leading-tight">{currentQ.q}</h3>
+        
+        <div className="space-y-3">
+          {currentQ.options.map((option, index) => {
+            let btnClass = "w-full text-left p-4 rounded-xl border-2 transition-all font-medium text-lg flex items-center justify-between ";
+            
+            if (selectedAnswer === null) {
+              btnClass += "border-slate-100 bg-slate-50 hover:border-teal-400 hover:bg-teal-50 text-slate-700";
+            } else if (index === currentQ.answer) {
+              btnClass += "border-green-500 bg-green-50 text-green-700";
+            } else if (selectedAnswer === index) {
+              btnClass += "border-red-500 bg-red-50 text-red-700";
+            } else {
+              btnClass += "border-slate-100 bg-slate-50 text-slate-400 opacity-50";
+            }
+
+            return (
+              <button 
+                key={index} 
+                onClick={() => handleAnswerClick(index)}
+                disabled={selectedAnswer !== null}
+                className={btnClass}
+              >
+                {option}
+                {selectedAnswer !== null && index === currentQ.answer && <CheckCircle size={24} className="text-green-500" />}
+                {selectedAnswer === index && index !== currentQ.answer && <XCircle size={24} className="text-red-500" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
