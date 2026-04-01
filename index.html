@@ -178,22 +178,23 @@
             }
         ];
 
+        // --- NEW DIFFICULT QUIZ TARGETED AT UZBEK LEARNERS ---
         const quizQuestions = [
-            { q: "1. 词汇题：“aeroport (机场)” 用汉语怎么说？", options: ["教室", "机场", "公司", "商店"], answer: 1 },
-            { q: "2. 翻译题：请选出“U hali ham sinfxonada dars qilyapti”的正确汉语翻译：", options: ["U aeroportda o'qiyapti.", "Ertaga imtihoni bor.", "他还在教室学习呢。", "U sinfxonada emas."], answer: 2 },
-            { q: "3. 拼音题：“时间 (vaqt)” 的正确拼音是什么？", options: ["shíjiān", "màn", "kuài", "xiǎoshí"], answer: 0 },
-            { q: "4. 语法题：哪个句子是正确的？", options: ["我家离学校很远。", "我家远学校离。", "学校离我家很不远。", "离我家学校很远。"], answer: 0 },
-            { q: "5. 填空题：“二十分钟___到。” (Yigirma daqiqada yetib boraman)", options: ["还", "离", "就", "呢"], answer: 2 },
-            { q: "6. 词汇题：表示“度过（时间/节日）”的动词是哪个？", options: ["走 (zǒu)", "到 (dào)", "过 (guò)", "去 (qù)"], answer: 2 },
-            { q: "7. 阅读理解（对话1）：大卫为什么还在学习？", options: ["他不想睡觉", "明天有考试", "他喜欢看书", "他要去机场"], answer: 1 },
-            { q: "8. 词汇题：“公共汽车 (avtobus)” 是什么意思？", options: ["飞机 (Airplane)", "自行车 (Bicycle)", "公共汽车 (Bus)", "出租车 (Taxi)"], answer: 2 },
-            { q: "9. 阅读理解（对话3）：他为什么不开车？", options: ["他没有车", "路上车太多了", "他不会开车", "公共汽车更快"], answer: 1 },
-            { q: "10. 填空题：“坐公共汽车要一个多小时___！”", options: ["吗", "呢", "吧", "离"], answer: 1 },
-            { q: "11. 阅读理解（对话4）：为什么他们今天给他过生日？", options: ["今天是他的生日", "下个星期他要去北京", "他们很饿", "饭馆只有今天开门"], answer: 1 },
-            { q: "12. 拼音题：“走 (piyoda yurib borish)” 的拼音是什么？", options: ["zǒu", "màn", "kuài", "guò"], answer: 0 },
-            { q: "13. 翻译题：“八点了，他还在睡觉。” 这句话的意思是什么？", options: ["他八点睡觉了。", "U hali ham uxlab yotibdi.", "他八点起床。", "他根本没睡觉。"], answer: 1 },
-            { q: "14. 词汇题：“快 (tez)” 的反义词（Antonym/Zid ma'no）是什么？", options: ["慢 (màn)", "远 (yuǎn)", "近 (jìn)", "到 (dào)"], answer: 0 },
-            { q: "15. 语法题：关于“离”的用法，哪个句子是正确的？", options: ["医院离我呢很近。", "我的生日离还有一个星期呢！", "离我家公司很远。", "你家离公司远吗？"], answer: 3 },
+            { q: "1. Tarjima (翻译题): O'zbek tilidagi 'Maktabdan uyimgacha unchalik uzoq emas' gapining eng to'g'ri xitoycha tarjimasini toping.", options: ["从学校我家不远。", "学校离我家不太远。", "学校离我家很远。", "我家离学校很近吗？"], answer: 1 },
+            { q: "2. Grammatika (语法题): Dars soat 8 da boshlanadi, u 7 yarimda ___ keldi. (八点上课，他七点半___来了。)", options: ["就", "还", "离", "呢"], answer: 0 },
+            { q: "3. Matnni tushunish (阅读理解): 3-dialogda (对话3) nima uchun suhbatdosh ishga mashinada (开车) borishni xohlamaydi?", options: ["Uning mashinasi yo'q (他没有车)。", "Avtobus ancha tezroq yuradi (公共汽车快)。", "Yo'lda mashinalar juda ko'p bo'lgani uchun (路上车太多了)。", "Ishxonasi juda yaqin (离公司近)。"], answer: 2 },
+            { q: "4. Xatoni toping (找错题): Qaysi gapda grammatik xato bor?", options: ["我坐飞机一个半小时就到北京了。", "机场离这儿有很多远。", "八点上课，时间还早呢。", "已经九点多了，他怎么还在教室学习？"], answer: 1 },
+            { q: "5. Ma'no (语义题): '坐公共汽车要一个多小时呢！' gapidagi '呢' qanday ma'noni ifodalaydi?", options: ["Savol berishni (Questioning)", "Ish-harakatning davom etayotganini (Continuing action)", "Vaqtning ko'p ketishiga urg'u berish va bo'rttirishni (Exaggeration/Emphasis)", "Joylashuvni ko'rsatishni (Indicating location)"], answer: 2 },
+            { q: "6. Tarjima (翻译题): 'Ertaga imtihonim bor, bugun yaxshilab tayyorlanishim kerak' xitoy tilida qanday aytiladi?", options: ["明天有考试，我说今天要好好学习。", "明天有考试，我今天就准备。", "明天有考试，我今天要好好准备。", "今天有考试，我明天要好好准备。"], answer: 2 },
+            { q: "7. Vaqt ifodasi (时间表达): '20 daqiqadayoq yetib boraman' ma'nosini beruvchi to'g'ri gapni belgilang.", options: ["二十分钟才到。", "二十分钟就到。", "二十分钟还到。", "二十分钟呢到。"], answer: 1 },
+            { q: "8. Matnni tushunish (阅读理解): 4-dialogda (对话4) nima uchun do'stining tug'ilgan kunini bugun nishonlamoqchi bo'lishdi?", options: ["Bugun uning haqiqiy tug'ilgan kuni.", "Keyingi hafta ulardan biri Pekinga ketishi kerak (下个星期去北京)。", "Xitoy restorani bugun chegirma e'lon qilgan.", "Ular bir yildan beri ko'rishmagan edi。"], answer: 1 },
+            { q: "9. Tarjima (翻译题): 'Avtobusda yurish juda sekin' xitoychada qanday yoziladi?", options: ["坐公共汽车太快了。", "坐公共汽车很远。", "坐公共汽车太慢了。", "开车太慢了。"], answer: 2 },
+            { q: "10. Bo'sh joylarni to'ldiring (填空题): 离我的生日___有一个多星期___！", options: ["就 / 呢", "还 / 呢", "还 / 吗", "就 / 吧"], answer: 1 },
+            { q: "11. Lug'at (词汇题): Qaysi so'z juftligi NOTO'G'RI tarjima qilingan?", options: ["准备 - Tayyorlanmoq", "慢 - Tez (Tez = 快)", "离 - ...dan (masofa)", "远 - Uzoq"], answer: 1 },
+            { q: "12. So'z tartibi (连词成句): So'zlardan to'g'ri gap tuzing: ①远 ②吗 ③公司 ④家 ⑤离 ⑥你", options: ["⑥④⑤③①② (你家离公司远吗)", "⑥⑤③④①② (你离公司家远吗)", "①②⑥④⑤③ (远吗你家离公司)", "⑤⑥④③①② (离你家公司远吗)"], answer: 0 },
+            { q: "13. Matnni tushunish (阅读理解): 2-dialogda (对话2) aeroportga ketayotgan do'sti (B) qachon yetib kelishini aytdi?", options: ["U allaqachon yetib kelgan.", "Samolyotdan tushgandan so'ng.", "20 daqiqadan so'ng (二十分钟就到)。", "Bir soatdan so'ng。"], answer: 2 },
+            { q: "14. Ma'no (语义题): '八点了，他还在睡觉。' gapidan nimani aniq tushunish mumkin?", options: ["U soat 8 da uxlashni rejalashtirgan.", "U uyg'ongan, lekin yotoqdan turmagan.", "U oldin uxlayotgan edi va hozir ham uyqusi davom etyapti.", "U faqat 8 soat uxlaydi."], answer: 2 },
+            { q: "15. Mantiqiy to'ldirish (逻辑填空): Quyidagi suhbatni mantiqan to'ldiring: A: 去那个饭馆远不远？(U restoranga borish uzoqmi?) B: 不远，_______________。(Uzoq emas, ...) ", options: ["走几个小时就到了。(Bir necha soat ketadi)", "走几分钟就到了。(Bir necha daqiqada yetib olamiz)", "开车也要一个多小时呢！(Mashinada ham bir soat ketadi)", "离这儿很远。(Bu yerdan juda uzoq)"], answer: 1 },
         ];
 
         /* =========================================
@@ -405,7 +406,7 @@
                     } else {
                         setShowResults(true);
                     }
-                }, 1200); 
+                }, 1500); // 增加了一点等待时间，方便学生看清错误解析或长答案
             };
 
             const restartQuiz = () => {
@@ -428,10 +429,10 @@
                     feedbackZh = "非常好！有几个小错误，但是成绩很棒！";
                 } else if (percentage >= 50) {
                     feedbackUz = "Yomon emas, lekin darslikni yana bir bor takrorlashingiz kerak. 📚";
-                    feedbackZh = "还不错，但是你需要再复习一下课本。";
+                    feedbackZh = "还不错，但是你需要再复习一下语法。";
                 } else {
                     feedbackUz = "Ko'proq amaliyot kerak. Lug'at va grammatikani qaytadan o'qing! 💪";
-                    feedbackZh = "需要更多练习，请重新复习生词和语法！";
+                    feedbackZh = "需要更多练习，请重新认真复习！";
                 }
 
                 return (
@@ -457,7 +458,7 @@
             const currentQ = quizQuestions[currentQIndex];
 
             return (
-                <div className="max-w-2xl mx-auto animate-fadeIn">
+                <div className="max-w-3xl mx-auto animate-fadeIn">
                     <div className="flex justify-between items-center mb-6 text-slate-500 font-semibold">
                         <span>Savol (问题) {currentQIndex + 1} / {quizQuestions.length}</span>
                         <span>Natija (得分): {score}</span>
@@ -471,11 +472,11 @@
                     </div>
 
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 mb-6">
-                        <h3 className="text-2xl font-bold text-slate-800 mb-6 leading-tight">{currentQ.q}</h3>
+                        <h3 className="text-2xl font-bold text-slate-800 mb-8 leading-relaxed">{currentQ.q}</h3>
                         
                         <div className="space-y-3">
                             {currentQ.options.map((option, index) => {
-                                let btnClass = "w-full text-left p-4 rounded-xl border-2 transition-all font-medium text-lg flex items-center justify-between ";
+                                let btnClass = "w-full text-left p-5 rounded-xl border-2 transition-all font-medium text-lg flex items-center justify-between ";
                                 
                                 if (selectedAnswer === null) {
                                     btnClass += "border-slate-100 bg-slate-50 hover:border-teal-400 hover:bg-teal-50 text-slate-700";
@@ -494,9 +495,9 @@
                                         disabled={selectedAnswer !== null}
                                         className={btnClass}
                                     >
-                                        {option}
-                                        {selectedAnswer !== null && index === currentQ.answer && <CheckCircle size={24} className="text-green-500" />}
-                                        {selectedAnswer === index && index !== currentQ.answer && <XCircle size={24} className="text-red-500" />}
+                                        <span className="leading-relaxed pr-4">{option}</span>
+                                        {selectedAnswer !== null && index === currentQ.answer && <CheckCircle size={24} className="text-green-500 shrink-0" />}
+                                        {selectedAnswer === index && index !== currentQ.answer && <XCircle size={24} className="text-red-500 shrink-0" />}
                                     </button>
                                 );
                             })}
