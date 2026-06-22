@@ -12,8 +12,8 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel for compiling JSX in the browser -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Babel for compiling JSX in the browser (Pinned to 7.23.6 to fix import errors) -->
+    <script src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
 
     <style>
         .perspective-1000 { perspective: 1000px; }
@@ -31,7 +31,7 @@
 
     <div id="root" class="flex flex-col min-h-screen"></div>
 
-    <script type="text/babel">
+    <script type="text/babel" data-type="module">
         const { useState } = React;
 
         // --- SVG Icons Components ---
@@ -173,7 +173,7 @@
                 examples: [
                     { ch: "八点上课，时间还早呢。", uz: "Dars soat 8 da boshlanadi, vaqt hali erta-ku.", ru: "Урок начинается в 8, еще рано.", en: "Class starts at 8, it's still early." },
                     { ch: "医院离我们这儿还远呢。", uz: "Kasalxona bu yerdan ancha uzoq.", ru: "Больница еще довольно далеко отсюда.", en: "The hospital is still quite far from here." },
-                    { ch: "坐公共汽车要一个多小时呢！", uz: "Avtobusda bir soatdan ko'proq vaqt ketadi!", ru: "Поездка на автобусе занимает больше часа!", en: "Taking the bus takes more than an hour!" }
+                    { ch: "坐公共汽车要一个多小时呢！", uz: "Avtobusda bir soat干多小时呢！", ru: "Поездка на автобусе занимает больше часа!", en: "Taking the bus takes more than an hour!" }
                 ]
             }
         ];
